@@ -61,8 +61,7 @@ final class Encrypt
                         ->chunk(8192),
                 )
                 ->map(static fn($chunk) => $chunk->toString())
-                ->map(Tag::of(...))
-                ->aggregate(static fn(Tag $a, Tag $b) => $a->and($b))
+                ->via(Sequence\Position::tag(...))
                 ->map(
                     static function($value) use (&$state, $kdfHeader) {
                         return \sodium_crypto_secretstream_xchacha20poly1305_push(
