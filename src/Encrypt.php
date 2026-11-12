@@ -58,9 +58,12 @@ final class Encrypt
                 ->add(Str::of('')) // to make sure there is always at least one chunk
                 ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
                 ->aggregate(
-                    static fn(Str $a, Str $b) => $a
-                        ->append($b)
-                        ->chunk(8192),
+                    static fn(Str $a, Str $b) => match ($b->empty()) {
+                        true => $a->chunk(8192), // this removes the appended empty chunk if there's at least one other chunk
+                        false => $a
+                            ->append($b)
+                            ->chunk(8192),
+                    },
                 )
                 ->map(static fn($chunk) => $chunk->toString())
                 ->via(Sequence\Position::tag(...))
