@@ -44,7 +44,6 @@ final class Encrypt
                     \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE,
                 ),
             );
-            \sodium_memzero($salt);
 
             /**
              * @var string $header
