@@ -16,7 +16,8 @@
     },
     "require": {
         "php": "~8.5",
-        "innmind/immutable": "~6.4"
+        "innmind/immutable": "~6.4",
+        "innmind/frame": "^1.0.1"
     },
     "autoload": {
         "psr-4": {
