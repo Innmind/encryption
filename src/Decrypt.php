@@ -109,10 +109,13 @@ final class Decrypt
             /** @psalm-suppress MixedArgumentTypeCoercion */
             yield $chunks
                 ->via($decode)
+                ->flatMap(static fn($chunk) => match (true) {
+                    $chunk instanceof Decrypt\Header => Sequence::of($chunk),
+                    default => $chunk->chunk(self::CHUNK),
+                })
                 ->aggregate(static fn(Decrypt\Header|Str $a, Str $b) => match (true) {
                     $a instanceof Decrypt\Header => Sequence::of($a, $b),
-                    $a->length() === self::CHUNK => Sequence::of($a, $b),
-                    default => Sequence::of($a->append($b)),
+                    default => $a->append($b)->chunk(self::CHUNK),
                 })
                 ->map(Decrypt\Chunk::of(...))
                 ->aggregate(static fn(Decrypt\Chunk|Decrypt\Pull $a, Decrypt\Chunk $b) => $a->and($b))
