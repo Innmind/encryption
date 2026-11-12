@@ -27,7 +27,10 @@ final class Plain
 
     public function validate(Position $position): Str
     {
-        if ($position->last() && !$this->last) {
+        if (
+            ($position->last() && !$this->last) ||
+            ($this->last && !$position->last())
+        ) {
             throw new \RuntimeException('Truncated file');
         }
 
