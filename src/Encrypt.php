@@ -80,6 +80,7 @@ final class Encrypt
                     },
                 );
 
+            /** @psalm-suppress MixedArgument */
             \sodium_memzero($state);
         })
             ->flatMap(static fn($chunks) => $chunks)
