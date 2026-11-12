@@ -106,6 +106,7 @@ final class Decrypt
             /** @psalm-suppress MixedArgumentTypeCoercion */
             yield $chunks
                 ->via($decode)
+                ->filter(static fn($chunk) => $chunk instanceof Decrypt\Header || !$chunk->empty())
                 ->flatMap(static fn($chunk) => match (true) {
                     $chunk instanceof Decrypt\Header => Sequence::of($chunk),
                     default => $chunk->chunk(self::CHUNK),
