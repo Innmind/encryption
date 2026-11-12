@@ -40,10 +40,8 @@ final class Decrypt
                     ['ops' => $ops, 'mem' => $mem] = \unpack('Pops/Pmem', $limits->toString());
 
                     if (
-                        $ops < \SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE ||
-                        $ops > \SODIUM_CRYPTO_PWHASH_OPSLIMIT_SENSITIVE ||
-                        $mem < \SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE ||
-                        $mem > \SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE
+                        $ops !== \SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE ||
+                        $mem !== \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE
                     ) {
                         throw new \RuntimeException('Invalid derivation key parameters');
                     }
