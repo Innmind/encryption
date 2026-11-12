@@ -89,7 +89,7 @@ return static function(Prove $prove) {
                                         ->unwrap()
                                         ->fold(Concat::monoid)
                                         ->toEncoding(Str\Encoding::ascii)
-                                        ->length(),
+                                        ->length() - 1,
                                 )
                                 ->map(static fn($truntaed) => [
                                     $encrypted->unwrap(),
