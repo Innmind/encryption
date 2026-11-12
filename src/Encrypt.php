@@ -55,6 +55,7 @@ final class Encrypt
             yield Sequence::of($kdfHeader, $header);
 
             yield $chunks
+                ->add(Str::of('')) // to make sure there is always at least one chunk
                 ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
                 ->aggregate(
                     static fn(Str $a, Str $b) => $a
