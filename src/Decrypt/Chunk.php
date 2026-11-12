@@ -10,8 +10,18 @@ use Innmind\Immutable\Str;
 final class Chunk
 {
     private function __construct(
-        private Header|Str $value,
+        private Header|Str|null $value,
     ) {
+    }
+
+    /**
+     * @return array{Plain, string}
+     */
+    public function __invoke(string $state): array
+    {
+        // the argument and return type is only here for psalm for the
+        // compatibility with Pull::__invoke()
+        throw new \RuntimeException('Truncated file');
     }
 
     public static function of(Header|Str $value): self
@@ -19,11 +29,24 @@ final class Chunk
         return new self($value);
     }
 
+    public static function none(): self
+    {
+        return new self(null);
+    }
+
     /**
-     * @return Sequence<Pull>
+     * @return Sequence<Pull|self>
      */
     public function and(self $next): Sequence
     {
+        if (\is_null($this->value)) {
+            return Sequence::of($next);
+        }
+
+        if (\is_null($next->value)) {
+            throw new \LogicException('Multiple "none" chunk inserted in the sequence');
+        }
+
         if ($next->value instanceof Header) {
             throw new \LogicException('The header should be the first value only');
         }
@@ -40,7 +63,7 @@ final class Chunk
 
     public function pull(): Pull
     {
-        if ($this->value instanceof Header) {
+        if (!($this->value instanceof Str)) {
             throw new \LogicException;
         }
 

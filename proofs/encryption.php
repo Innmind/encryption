@@ -71,4 +71,44 @@ return static function(Prove $prove) {
                     ->contains(\strrev($chunk));
             }
         });
+
+    yield $prove
+        ->proof('Decryption of truncated file fails')
+        ->given(
+            Set::strings()
+                ->between(1, 4096)
+                ->flatMap(
+                    static fn($password) => Set::sequence(Set::strings())
+                        ->map(static fn($chunks) => Sequence::of(...$chunks)->map(Str::of(...)))
+                        ->map(Encrypt::of($password->unwrap()))
+                        ->flatMap(
+                            static fn($encrypted) => Set::integers()
+                                ->between(
+                                    0,
+                                    $encrypted
+                                        ->unwrap()
+                                        ->fold(Concat::monoid)
+                                        ->toEncoding(Str\Encoding::ascii)
+                                        ->length(),
+                                )
+                                ->map(static fn($truntaed) => [
+                                    $encrypted->unwrap(),
+                                    $password->unwrap(),
+                                    $truntaed,
+                                ]),
+                        ),
+                ),
+        )
+        ->test(static function(Assert $assert, $config) {
+            [$encrypted, $password, $truncated] = $config;
+
+            $assert->throws(
+                static fn() => $encrypted
+                    ->flatMap(static fn($chunk) => $chunk->chunk())
+                    ->take($truncated)
+                    ->via(Decrypt::of($password))
+                    ->fold(Concat::monoid)
+                    ->toString(),
+            );
+        });
 };

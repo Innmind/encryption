@@ -9,7 +9,6 @@ use Innmind\Immutable\{
     Sequence,
     Str,
 };
-use Innmind\Immutable\Predicate\Instance;
 
 final class Decrypt
 {
@@ -118,8 +117,8 @@ final class Decrypt
                     default => $a->append($b)->chunk(self::CHUNK),
                 })
                 ->map(Decrypt\Chunk::of(...))
+                ->prepend(Sequence::of(Decrypt\Chunk::none()))
                 ->aggregate(static fn(Decrypt\Chunk|Decrypt\Pull $a, Decrypt\Chunk $b) => $a->and($b))
-                ->keep(Instance::of(Decrypt\Pull::class))
                 ->map(static function($pull) use (&$state) {
                     [$plain, $state] = $pull($state);
 
