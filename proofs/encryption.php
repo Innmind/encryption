@@ -45,7 +45,7 @@ return static function(Prove $prove) {
         ->proof('Encryption does not expose chunks in plain text')
         ->given(
             Set::sequence(
-                Set::strings()->atLeast(3), // statistically probable that a short chunk can be found as an encrypted value
+                Set::strings()->atLeast(4), // statistically probable that a short chunk can be found as an encrypted value
             ),
             Set::strings()->between(1, 4096),
         )
