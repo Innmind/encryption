@@ -108,12 +108,12 @@ final class Decrypt
                 ->via($decode)
                 ->filter(static fn($chunk) => $chunk instanceof Decrypt\Header || !$chunk->empty())
                 ->flatMap(static fn($chunk) => match (true) {
-                    $chunk instanceof Decrypt\Header => Sequence::of($chunk),
-                    default => $chunk->chunk(self::CHUNK),
+                    $chunk instanceof Str => $chunk->chunk(self::CHUNK),
+                    default => Sequence::of($chunk),
                 })
                 ->aggregate(static fn(Decrypt\Header|Str $a, Str $b) => match (true) {
-                    $a instanceof Decrypt\Header => Sequence::of($a, $b),
-                    default => $a->append($b)->chunk(self::CHUNK),
+                    $a instanceof Str => $a->append($b)->chunk(self::CHUNK),
+                    default => Sequence::of($a, $b),
                 })
                 ->map(Decrypt\Chunk::of(...))
                 ->prepend(Sequence::of(Decrypt\Chunk::none()))
