@@ -19,8 +19,7 @@ Application::new($argv)
                     __DIR__.'/src/',
                     __DIR__.'/proofs/',
                 )
-                    ->dumpTo('coverage.clover')
-                    ->enableWhen(true),
+                    ->dumpTo('coverage.clover'),
             ),
         default => $app,
     })

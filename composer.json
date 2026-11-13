@@ -15,7 +15,9 @@
         "issues": "http://github.com/innmind/encryption/issues"
     },
     "require": {
-        "php": "~8.5"
+        "php": "~8.5",
+        "innmind/immutable": "~6.5",
+        "innmind/frame": "^1.0.2"
     },
     "autoload": {
         "psr-4": {
