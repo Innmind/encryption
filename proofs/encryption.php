@@ -111,4 +111,26 @@ return static function(Prove $prove) {
                     ->toString(),
             );
         });
+
+    yield $prove
+        ->proof('Decryption with wrong password fails')
+        ->given(
+            Set::sequence(
+                Set::strings(),
+            ),
+            Set::strings()->between(1, 4096),
+            Set::strings()->between(1, 4096),
+        )
+        ->exclude(static fn($_, $a, $b) => $a === $b)
+        ->test(static function(Assert $assert, $chunks, $password, $wrongPassword) {
+            $encrypt = Encrypt::of($password);
+            $decrypt = Decrypt::of($wrongPassword);
+            $encrypted = Sequence::of(...$chunks)
+                ->map(Str::of(...))
+                ->via($encrypt);
+
+            $assert->throws(
+                static fn() => $decrypt($encrypted)->memoize(),
+            );
+        });
 };
