@@ -31,6 +31,13 @@ enum Version
         return self::v1;
     }
 
+    public function sensitivity(): Sensitivity
+    {
+        return match ($this) {
+            self::v1 => Sensitivity::moderate,
+        };
+    }
+
     /**
      * @return non-empty-string
      */

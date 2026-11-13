@@ -26,20 +26,21 @@ final class Encrypt
         $password = $this->password;
 
         return Sequence::lazy(static function() use ($chunks, $password) {
+            $version = Version::latest();
             $salt = \random_bytes(\SODIUM_CRYPTO_PWHASH_SALTBYTES);
             $key = \sodium_crypto_pwhash(
                 \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
                 $password->unwrap(),
                 $salt,
-                Sensitivity::moderate->operations(),
-                Sensitivity::moderate->memory(),
+                $version->sensitivity()->operations(),
+                $version->sensitivity()->memory(),
                 \SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13,
             );
             $kdfHeader = \sprintf(
                 '%s%s%s',
                 Version::latest()->toString(),
                 $salt,
-                Sensitivity::moderate->pack(),
+                $version->sensitivity()->pack(),
             );
 
             /**
