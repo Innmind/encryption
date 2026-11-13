@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace Innmind\Encryption;
 
+use Innmind\Frame\Frame;
+
 /**
  * @psalm-immutable
  */
@@ -38,5 +40,19 @@ enum Sensitivity
             self::moderate => \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE,
             self::high => \SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE,
         };
+    }
+
+    /**
+     * @return Frame<self>
+     */
+    public function frame(): Frame
+    {
+        return Frame::chunk(16)->map(function($limits) {
+            if ($this->pack() !== $limits->toString()) {
+                throw new \RuntimeException('Invalid derivation key parameters');
+            }
+
+            return $this;
+        });
     }
 }

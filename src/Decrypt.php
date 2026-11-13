@@ -30,17 +30,14 @@ final class Decrypt
                     ->map(static fn($salt) => [$version, $salt]),
             )
             ->flatMap(
-                static fn($pair) => Frame::chunk(16)->map(static function($limits) use ($pair) {
-                    if ($pair[0]->sensitivity()->pack() !== $limits->toString()) {
-                        throw new \RuntimeException('Invalid derivation key parameters');
-                    }
-
-                    return [
-                        $pair[0]->toString().$pair[1]->toString().$limits->toString(),
+                static fn($pair) => $pair[0]
+                    ->sensitivity()
+                    ->frame()
+                    ->map(static fn($limits) => [
+                        $pair[0]->toString().$pair[1]->toString().$limits->pack(),
                         $pair[1]->toString(),
                         $pair[0],
-                    ];
-                }),
+                    ]),
             )
             ->map(static function($tuple) use ($password) {
                 [$kdfHeader, $salt, $version] = $tuple;
