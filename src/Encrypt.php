@@ -36,7 +36,8 @@ final class Encrypt
                 \SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13,
             );
             $kdfHeader = \sprintf(
-                'PWE1%s%s',
+                '%s%s%s',
+                Version::latest()->toString(),
                 $salt,
                 \pack(
                     'PP',

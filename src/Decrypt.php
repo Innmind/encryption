@@ -21,13 +21,10 @@ final class Decrypt
         Password $password,
     ) {
         $this->decode = Frame::chunk(4)
-            ->map(static fn($magic) => match ($magic->toString()) {
-                'PWE1' => $magic,
-                default => throw new \RuntimeException('Invalid encrypted file'),
-            })
+            ->map(Version::of(...))
             ->flatMap(
-                static fn($magic) => Frame::chunk(\SODIUM_CRYPTO_PWHASH_SALTBYTES)->map(
-                    static fn($salt) => [$magic, $salt],
+                static fn($version) => Frame::chunk(\SODIUM_CRYPTO_PWHASH_SALTBYTES)->map(
+                    static fn($salt) => [$version, $salt],
                 ),
             )
             ->flatMap(
