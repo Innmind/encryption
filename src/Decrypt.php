@@ -14,7 +14,7 @@ final class Decrypt
 {
     private const int CHUNK = 8192 + \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES;
 
-    /** @var Frame<array{string, Decrypt\Key}> */
+    /** @var Frame<array{string, DerivationKey}> */
     private Frame $decode;
 
     private function __construct(
@@ -41,11 +41,11 @@ final class Decrypt
             )
             ->map(static function($tuple) use ($password) {
                 [$kdfHeader, $salt, $version] = $tuple;
-                $key = new Decrypt\Key($version->algorithm()->hash()->key(
+                $key = $version->algorithm()->hash()->key(
                     $password,
                     $salt,
                     $version->sensitivity(),
-                ));
+                );
 
                 return [
                     $kdfHeader,

@@ -4,8 +4,11 @@ declare(strict_types = 1);
 
 namespace Innmind\Encryption\Algorithm;
 
-use Innmind\Encryption\Password;
-use Innmind\Encryption\Sensitivity;
+use Innmind\Encryption\{
+    DerivationKey,
+    Password,
+    Sensitivity,
+};
 
 /**
  * @psalm-immutable
@@ -25,8 +28,8 @@ enum Hash
         Password $password,
         string $salt,
         Sensitivity $sensitivity,
-    ): string {
-        return match ($this) {
+    ): DerivationKey {
+        return new DerivationKey(match ($this) {
             self::xchacha20poly1305 => \sodium_crypto_pwhash(
                 $this->size(),
                 $password->unwrap(),
@@ -35,6 +38,6 @@ enum Hash
                 $sensitivity->memory(),
                 \SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13,
             ),
-        };
+        });
     }
 }

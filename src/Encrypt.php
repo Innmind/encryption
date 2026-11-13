@@ -43,8 +43,8 @@ final class Encrypt
             /**
              * @var string $header
              */
-            [$state, $header] = \sodium_crypto_secretstream_xchacha20poly1305_init_push($key);
-            \sodium_memzero($key);
+            [$state, $header] = \sodium_crypto_secretstream_xchacha20poly1305_init_push($key->unwrap());
+            $key->destroy();
 
             yield Sequence::of($kdfHeader, $header);
 

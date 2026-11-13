@@ -2,9 +2,9 @@
 
 declare(strict_types = 1);
 
-namespace Innmind\Encryption\Decrypt;
+namespace Innmind\Encryption;
 
-final class Key
+final class DerivationKey
 {
     public function __construct(
         private string $value,
