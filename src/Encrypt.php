@@ -38,7 +38,7 @@ final class Encrypt
             );
             $kdfHeader = \sprintf(
                 '%s%s%s',
-                Version::latest()->toString(),
+                $version->toString(),
                 $salt,
                 $version->sensitivity()->pack(),
             );
