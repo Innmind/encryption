@@ -14,7 +14,7 @@ final class Decrypt
 {
     private const int CHUNK = 8192 + \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_ABYTES;
 
-    /** @var Frame<array{string, string}> */
+    /** @var Frame<array{string, Decrypt\Key}> */
     private Frame $decode;
 
     private function __construct(
@@ -56,14 +56,14 @@ final class Decrypt
             )
             ->map(static function($tuple) use ($password) {
                 [$kdfHeader, $salt, $ops, $mem] = $tuple;
-                $key = \sodium_crypto_pwhash(
+                $key = new Decrypt\Key(\sodium_crypto_pwhash(
                     \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
                     $password,
                     $salt,
                     $ops,
                     $mem,
                     \SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13,
-                );
+                ));
 
                 return [
                     $kdfHeader,
@@ -90,9 +90,9 @@ final class Decrypt
                             static function($header) use (&$pair, &$state) {
                                 $state = \sodium_crypto_secretstream_xchacha20poly1305_init_pull(
                                     $header->toString(),
-                                    $pair[1],
+                                    $pair[1]->unwrap(),
                                 );
-                                \sodium_memzero($pair[1]);
+                                $pair[1]->destroy();
 
                                 return $pair[0];
                             },
