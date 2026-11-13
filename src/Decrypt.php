@@ -18,7 +18,7 @@ final class Decrypt
     private Frame $decode;
 
     private function __construct(
-        #[\SensitiveParameter] string $password,
+        Password $password,
     ) {
         $this->decode = Frame::chunk(4)
             ->map(static fn($magic) => match ($magic->toString()) {
@@ -58,7 +58,7 @@ final class Decrypt
                 [$kdfHeader, $salt, $ops, $mem] = $tuple;
                 $key = new Decrypt\Key(\sodium_crypto_pwhash(
                     \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
-                    $password,
+                    $password->unwrap(),
                     $salt,
                     $ops,
                     $mem,
@@ -136,7 +136,7 @@ final class Decrypt
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii));
     }
 
-    public static function of(#[\SensitiveParameter] string $password): self
+    public static function of(Password $password): self
     {
         return new self($password);
     }

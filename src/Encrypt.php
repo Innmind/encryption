@@ -12,7 +12,7 @@ use Innmind\Immutable\{
 final class Encrypt
 {
     private function __construct(
-        private string $password,
+        private Password $password,
     ) {
     }
 
@@ -29,7 +29,7 @@ final class Encrypt
             $salt = \random_bytes(\SODIUM_CRYPTO_PWHASH_SALTBYTES);
             $key = \sodium_crypto_pwhash(
                 \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
-                $password,
+                $password->unwrap(),
                 $salt,
                 \SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE,
                 \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE,
@@ -92,7 +92,7 @@ final class Encrypt
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii));
     }
 
-    public static function of(#[\SensitiveParameter] string $password): self
+    public static function of(Password $password): self
     {
         return new self($password);
     }

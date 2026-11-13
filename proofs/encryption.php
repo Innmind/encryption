@@ -5,6 +5,7 @@ declare(strict_types = 1);
 use Innmind\Encryption\{
     Encrypt,
     Decrypt,
+    Password,
 };
 use Innmind\Immutable\{
     Sequence,
@@ -27,8 +28,8 @@ return static function(Prove $prove) {
             Set::strings()->between(1, 4096),
         )
         ->test(static function(Assert $assert, $chunks, $password) {
-            $encrypt = Encrypt::of($password);
-            $decrypt = Decrypt::of($password);
+            $encrypt = Encrypt::of(Password::of($password));
+            $decrypt = Decrypt::of(Password::of($password));
 
             $assert->same(
                 \implode('', $chunks),
@@ -50,7 +51,7 @@ return static function(Prove $prove) {
             Set::strings()->between(1, 4096),
         )
         ->test(static function(Assert $assert, $chunks, $password) {
-            $encrypt = Encrypt::of($password);
+            $encrypt = Encrypt::of(Password::of($password));
 
             $encrypted = Sequence::of(...$chunks)
                 ->map(Str::of(...))
@@ -80,7 +81,7 @@ return static function(Prove $prove) {
                 ->flatMap(
                     static fn($password) => Set::sequence(Set::strings())
                         ->map(static fn($chunks) => Sequence::of(...$chunks)->map(Str::of(...)))
-                        ->map(Encrypt::of($password->unwrap()))
+                        ->map(Encrypt::of(Password::of($password->unwrap())))
                         ->flatMap(
                             static fn($encrypted) => Set::integers()
                                 ->between(
@@ -106,7 +107,7 @@ return static function(Prove $prove) {
                 static fn() => $encrypted
                     ->flatMap(static fn($chunk) => $chunk->chunk())
                     ->take($truncated)
-                    ->via(Decrypt::of($password))
+                    ->via(Decrypt::of(Password::of($password)))
                     ->fold(Concat::monoid)
                     ->toString(),
             );
@@ -123,8 +124,8 @@ return static function(Prove $prove) {
         )
         ->exclude(static fn($_, $a, $b) => $a === $b)
         ->test(static function(Assert $assert, $chunks, $password, $wrongPassword) {
-            $encrypt = Encrypt::of($password);
-            $decrypt = Decrypt::of($wrongPassword);
+            $encrypt = Encrypt::of(Password::of($password));
+            $decrypt = Decrypt::of(Password::of($wrongPassword));
             $encrypted = Sequence::of(...$chunks)
                 ->map(Str::of(...))
                 ->via($encrypt);
