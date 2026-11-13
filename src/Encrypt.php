@@ -31,19 +31,15 @@ final class Encrypt
                 \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
                 $password->unwrap(),
                 $salt,
-                \SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE,
-                \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE,
+                Sensitivity::moderate->operations(),
+                Sensitivity::moderate->memory(),
                 \SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13,
             );
             $kdfHeader = \sprintf(
                 '%s%s%s',
                 Version::latest()->toString(),
                 $salt,
-                \pack(
-                    'PP',
-                    \SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE,
-                    \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE,
-                ),
+                Sensitivity::moderate->pack(),
             );
 
             /**

@@ -29,36 +29,24 @@ final class Decrypt
             )
             ->flatMap(
                 static fn($pair) => Frame::chunk(16)->map(static function($limits) use ($pair) {
-                    /**
-                     * @var int $ops
-                     * @var int $mem
-                     * @psalm-suppress PossiblyInvalidArrayAccess
-                     */
-                    ['ops' => $ops, 'mem' => $mem] = \unpack('Pops/Pmem', $limits->toString());
-
-                    if (
-                        $ops !== \SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE ||
-                        $mem !== \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE
-                    ) {
+                    if (Sensitivity::moderate->pack() !== $limits->toString()) {
                         throw new \RuntimeException('Invalid derivation key parameters');
                     }
 
                     return [
                         $pair[0]->toString().$pair[1]->toString().$limits->toString(),
                         $pair[1]->toString(),
-                        $ops,
-                        $mem,
                     ];
                 }),
             )
-            ->map(static function($tuple) use ($password) {
-                [$kdfHeader, $salt, $ops, $mem] = $tuple;
+            ->map(static function($pair) use ($password) {
+                [$kdfHeader, $salt] = $pair;
                 $key = new Decrypt\Key(\sodium_crypto_pwhash(
                     \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
                     $password->unwrap(),
                     $salt,
-                    $ops,
-                    $mem,
+                    Sensitivity::moderate->operations(),
+                    Sensitivity::moderate->memory(),
                     \SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13,
                 ));
 
