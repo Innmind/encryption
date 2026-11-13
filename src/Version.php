@@ -38,6 +38,13 @@ enum Version
         };
     }
 
+    public function algorithm(): Algorithm
+    {
+        return match ($this) {
+            self::v1 => Algorithm::xchacha20poly1305,
+        };
+    }
+
     /**
      * @return non-empty-string
      */

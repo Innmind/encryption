@@ -23,9 +23,11 @@ final class Decrypt
         $this->decode = Frame::chunk(4)
             ->map(Version::of(...))
             ->flatMap(
-                static fn($version) => Frame::chunk(\SODIUM_CRYPTO_PWHASH_SALTBYTES)->map(
-                    static fn($salt) => [$version, $salt],
-                ),
+                static fn($version) => $version
+                    ->algorithm()
+                    ->salt()
+                    ->frame()
+                    ->map(static fn($salt) => [$version, $salt]),
             )
             ->flatMap(
                 static fn($pair) => Frame::chunk(16)->map(static function($limits) use ($pair) {
@@ -36,19 +38,16 @@ final class Decrypt
                     return [
                         $pair[0]->toString().$pair[1]->toString().$limits->toString(),
                         $pair[1]->toString(),
-                        $pair[0]->sensitivity(),
+                        $pair[0],
                     ];
                 }),
             )
             ->map(static function($tuple) use ($password) {
-                [$kdfHeader, $salt, $sensitivity] = $tuple;
-                $key = new Decrypt\Key(\sodium_crypto_pwhash(
-                    \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
-                    $password->unwrap(),
+                [$kdfHeader, $salt, $version] = $tuple;
+                $key = new Decrypt\Key($version->algorithm()->hash()->key(
+                    $password,
                     $salt,
-                    $sensitivity->operations(),
-                    $sensitivity->memory(),
-                    \SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13,
+                    $version->sensitivity(),
                 ));
 
                 return [

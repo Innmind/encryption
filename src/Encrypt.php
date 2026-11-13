@@ -27,14 +27,11 @@ final class Encrypt
 
         return Sequence::lazy(static function() use ($chunks, $password) {
             $version = Version::latest();
-            $salt = \random_bytes(\SODIUM_CRYPTO_PWHASH_SALTBYTES);
-            $key = \sodium_crypto_pwhash(
-                \SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_KEYBYTES,
-                $password->unwrap(),
+            $salt = $version->algorithm()->salt()->new();
+            $key = $version->algorithm()->hash()->key(
+                $password,
                 $salt,
-                $version->sensitivity()->operations(),
-                $version->sensitivity()->memory(),
-                \SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13,
+                $version->sensitivity(),
             );
             $kdfHeader = \sprintf(
                 '%s%s%s',
