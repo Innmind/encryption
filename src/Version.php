@@ -48,6 +48,21 @@ enum Version
     /**
      * @return non-empty-string
      */
+    public function kdfHeader(string $salt, ?Sensitivity $sensitivity = null): string
+    {
+        $sensitivity ??= $this->sensitivity();
+
+        return \sprintf(
+            '%s%s%s',
+            $this->toString(),
+            $salt,
+            $sensitivity->pack(),
+        );
+    }
+
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string
     {
         return match ($this) {

@@ -34,7 +34,7 @@ final class Decrypt
                     ->sensitivity()
                     ->frame()
                     ->map(static fn($limits) => [
-                        $pair[0]->toString().$pair[1]->toString().$limits->pack(),
+                        $pair[0]->kdfHeader($pair[1]->toString(), $limits),
                         $pair[1]->toString(),
                         $pair[0],
                     ]),

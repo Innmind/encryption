@@ -33,12 +33,7 @@ final class Encrypt
                 $salt,
                 $version->sensitivity(),
             );
-            $kdfHeader = \sprintf(
-                '%s%s%s',
-                $version->toString(),
-                $salt,
-                $version->sensitivity()->pack(),
-            );
+            $kdfHeader = $version->kdfHeader($salt);
 
             /**
              * @var string $header
